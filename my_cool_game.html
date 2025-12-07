@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>بازی دوز خفن من</title>
+    <style>
+        /* استایل‌های ساده و ابتدایی */
+        body {
+            background-color: #000000; /* پس زمینه مشکی هکری */
+            color: #00FF00; /* متن سبز نئونی */
+            font-family: 'Tahoma', sans-serif;
+            text-align: center;
+        }
+        
+        h1 {
+            border: 2px dashed red;
+            padding: 10px;
+            display: inline-block;
+            background-color: yellow;
+            color: red;
+        }
+
+        /* استفاده از جدول برای لی‌آوت - روش کلاسیک قدیمی */
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #ffffff;
+        }
+
+        td {
+            width: 100px;
+            height: 100px;
+            border: 5px solid #000000;
+            font-size: 60px;
+            text-align: center;
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+        }
+
+        td:hover {
+            background-color: #cccccc;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 18px;
+            color: white;
+        }
+        
+        /* دکمه ریست با استایل ابتدایی */
+        button {
+            background-color: red;
+            color: white;
+            padding: 10px 20px;
+            font-size: 20px;
+            border: 5px outset darkred;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <marquee scrollamount="10">*** به بازی دوز سوپر حرفه‌ای خوش آمدید *** برنامه نویس: پایتون</marquee>
+
+    <h1>X vs O</h1>
+    <br><br>
+
+    <table id="board">
+        <tr>
+            <td id="c0" onclick="bezan(this, 0)"></td>
+            <td id="c1" onclick="bezan(this, 1)"></td>
+            <td id="c2" onclick="bezan(this, 2)"></td>
+        </tr>
+        <tr>
+            <td id="c3" onclick="bezan(this, 3)"></td>
+            <td id="c4" onclick="bezan(this, 4)"></td>
+            <td id="c5" onclick="bezan(this, 5)"></td>
+        </tr>
+        <tr>
+            <td id="c6" onclick="bezan(this, 6)"></td>
+            <td id="c7" onclick="bezan(this, 7)"></td>
+            <td id="c8" onclick="bezan(this, 8)"></td>
+        </tr>
+    </table>
+
+    <div class="footer">نوبت بازیکن: <span id="nobat">X</span></div>
+    
+    <button onclick="location.reload()">بازی مجدد</button>
+
+    <script>
+        // متغیرهای ساده جهانی
+        var bazikon = 'X';
+        var khooneHa = ['', '', '', '', '', '', '', '', ''];
+        var tamoomShod = false;
+
+        function bezan(element, index) {
+            // چک کردن اینکه آیا خونه خالیه و بازی تموم نشده
+            if (element.innerHTML == '' && tamoomShod == false) {
+                
+                // گذاشتن علامت
+                element.innerHTML = bazikon;
+                khooneHa[index] = bazikon;
+                
+                // تغییر رنگ بر اساس بازیکن
+                if(bazikon == 'X') {
+                    element.style.color = 'red';
+                } else {
+                    element.style.color = 'blue';
+                }
+
+                checkBarande();
+
+                // عوض کردن نوبت با یک شرط ساده
+                if (bazikon == 'X') {
+                    bazikon = 'O';
+                } else {
+                    bazikon = 'X';
+                }
+                
+                // آپدیت متن پایین صفحه
+                document.getElementById('nobat').innerHTML = bazikon;
+            }
+        }
+
+        function checkBarande() {
+            // بررسی تمام حالت‌های برد با شرط‌های طولانی (روش مبتدی)
+            
+            // ردیف‌ها
+            if (check(0,1,2) || check(3,4,5) || check(6,7,8) || 
+                check(0,3,6) || check(1,4,7) || check(2,5,8) || // ستون‌ها
+                check(0,4,8) || check(2,4,6)) { // ضربدری
+                
+                tamoomShod = true;
+                // استفاده از alert که خیلی کلاسیک است
+                setTimeout(function(){ 
+                    alert('ایول! بازیکن ' + bazikon + ' برنده شد!'); 
+                }, 100);
+            } 
+            // چک کردن مساوی شدن
+            else if (!khooneHa.includes('')) {
+                alert('بازی مساوی شد!');
+                tamoomShod = true;
+            }
+        }
+
+        function check(a, b, c) {
+            if (khooneHa[a] != '' && khooneHa[a] == khooneHa[b] && khooneHa[b] == khooneHa[c]) {
+                return true;
+            }
+            return false;
+        }
+    </script>
+
+</body>
+</html>
