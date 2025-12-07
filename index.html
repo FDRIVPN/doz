@@ -1,157 +1,472 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="fa" dir="rtl">
 <head>
-    <title>بازی دوز خفن من</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی دوز - حرفه‌ای</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        /* استایل‌های ساده و ابتدایی */
-        body {
-            background-color: #000000; /* پس زمینه مشکی هکری */
-            color: #00FF00; /* متن سبز نئونی */
-            font-family: 'Tahoma', sans-serif;
-            text-align: center;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;700;900&display=swap');
         
-        h1 {
-            border: 2px dashed red;
-            padding: 10px;
-            display: inline-block;
-            background-color: yellow;
-            color: red;
+        * {
+            font-family: 'Vazirmatn', sans-serif;
         }
 
-        /* استفاده از جدول برای لی‌آوت - روش کلاسیک قدیمی */
-        table {
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 450px;
             margin: 0 auto;
-            border-collapse: collapse;
-            background-color: #ffffff;
         }
 
-        td {
-            width: 100px;
-            height: 100px;
-            border: 5px solid #000000;
-            font-size: 60px;
-            text-align: center;
+        .cell {
+            aspect-ratio: 1;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 4rem;
             font-weight: bold;
             cursor: pointer;
-            color: black;
-        }
-
-        td:hover {
-            background-color: #cccccc;
-        }
-
-        .footer {
-            margin-top: 20px;
-            font-size: 18px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
         }
-        
-        /* دکمه ریست با استایل ابتدایی */
-        button {
-            background-color: red;
+
+        .cell:hover:not(.filled) {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .cell.filled {
+            cursor: not-allowed;
+        }
+
+        .cell.x {
+            color: #ff6b6b;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+
+        .cell.o {
+            color: #4ecdc4;
+            text-shadow: 0 0 20px rgba(78, 205, 196, 0.5);
+        }
+
+        .cell.winner {
+            animation: winner-pulse 0.6s ease-in-out infinite;
+            background: rgba(255, 215, 0, 0.3);
+        }
+
+        @keyframes winner-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover:before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .score-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
             color: white;
-            padding: 10px 20px;
-            font-size: 20px;
-            border: 5px outset darkred;
-            cursor: pointer;
-            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .mode-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: scale(1.05);
+        }
+
+        .difficulty-btn {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .difficulty-btn.active {
+            background: linear-gradient(135deg, #ffa726 0%, #fb8c00 100%);
+            transform: scale(1.05);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .slide-in {
+            animation: slideIn 0.4s ease-out;
         }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8 fade-in">
+            <h1 class="text-5xl md:text-6xl font-black text-white mb-2" style="text-shadow: 0 5px 15px rgba(0,0,0,0.3);">
+                🎮 بازی دوز حرفه‌ای
+            </h1>
+            <p class="text-white text-lg opacity-90">با دوستانت بازی کن یا ربات رو شکست بده!</p>
+        </div>
 
-    <marquee scrollamount="10">*** به بازی دوز سوپر حرفه‌ای خوش آمدید *** برنامه نویس: پایتون</marquee>
+        <div class="grid md:grid-cols-3 gap-6">
+            <!-- Settings Panel -->
+            <div class="glass-card p-6 fade-in">
+                <h2 class="text-2xl font-bold text-white mb-4 text-center">⚙️ تنظیمات</h2>
+                
+                <!-- Game Mode -->
+                <div class="mb-6">
+                    <h3 class="text-white font-semibold mb-3">حالت بازی:</h3>
+                    <div class="space-y-2">
+                        <button onclick="setGameMode('bot')" id="botMode" class="btn mode-btn active w-full py-3 px-4 rounded-xl text-white font-bold">
+                            🤖 بازی با ربات
+                        </button>
+                        <button onclick="setGameMode('friend')" id="friendMode" class="btn mode-btn w-full py-3 px-4 rounded-xl text-white font-bold">
+                            👥 بازی با دوست
+                        </button>
+                    </div>
+                </div>
 
-    <h1>X vs O</h1>
-    <br><br>
+                <!-- Difficulty Level -->
+                <div id="difficultySection" class="mb-6 slide-in">
+                    <h3 class="text-white font-semibold mb-3">سطح سختی:</h3>
+                    <div class="space-y-2">
+                        <button onclick="setDifficulty('easy')" id="easyBtn" class="btn difficulty-btn w-full py-2 px-4 rounded-lg text-white font-semibold">
+                            😊 آسان
+                        </button>
+                        <button onclick="setDifficulty('medium')" id="mediumBtn" class="btn difficulty-btn active w-full py-2 px-4 rounded-lg text-white font-semibold">
+                            😎 متوسط
+                        </button>
+                        <button onclick="setDifficulty('hard')" id="hardBtn" class="btn difficulty-btn w-full py-2 px-4 rounded-lg text-white font-semibold">
+                            🔥 سخت
+                        </button>
+                        <button onclick="setDifficulty('impossible')" id="impossibleBtn" class="btn difficulty-btn w-full py-2 px-4 rounded-lg text-white font-semibold">
+                            💀 غیرممکن
+                        </button>
+                    </div>
+                </div>
 
-    <table id="board">
-        <tr>
-            <td id="c0" onclick="bezan(this, 0)"></td>
-            <td id="c1" onclick="bezan(this, 1)"></td>
-            <td id="c2" onclick="bezan(this, 2)"></td>
-        </tr>
-        <tr>
-            <td id="c3" onclick="bezan(this, 3)"></td>
-            <td id="c4" onclick="bezan(this, 4)"></td>
-            <td id="c5" onclick="bezan(this, 5)"></td>
-        </tr>
-        <tr>
-            <td id="c6" onclick="bezan(this, 6)"></td>
-            <td id="c7" onclick="bezan(this, 7)"></td>
-            <td id="c8" onclick="bezan(this, 8)"></td>
-        </tr>
-    </table>
+                <!-- Scores -->
+                <div class="glass-card p-4">
+                    <h3 class="text-white font-semibold mb-3 text-center">🏆 امتیازات</h3>
+                    <div class="flex justify-around items-center">
+                        <div class="text-center">
+                            <div class="score-badge mb-2" id="playerXScore">0</div>
+                            <p class="text-white text-sm" id="playerXLabel">بازیکن X</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="score-badge mb-2" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);" id="drawScore">0</div>
+                            <p class="text-white text-sm">مساوی</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="score-badge mb-2" id="playerOScore">0</div>
+                            <p class="text-white text-sm" id="playerOLabel">بازیکن O</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <div class="footer">نوبت بازیکن: <span id="nobat">X</span></div>
-    
-    <button onclick="location.reload()">بازی مجدد</button>
+            <!-- Game Board -->
+            <div class="md:col-span-2 glass-card p-6 md:p-8 fade-in">
+                <div class="mb-6 text-center">
+                    <h2 class="text-3xl font-bold text-white mb-2" id="statusText">نوبت بازیکن X</h2>
+                    <div class="text-white text-lg opacity-90" id="turnIndicator">
+                        <span class="inline-block w-4 h-4 bg-red-400 rounded-full animate-pulse mr-2"></span>
+                        نوبت شماست!
+                    </div>
+                </div>
+
+                <div class="game-board mb-6" id="gameBoard">
+                    <div class="cell" onclick="makeMove(0)"></div>
+                    <div class="cell" onclick="makeMove(1)"></div>
+                    <div class="cell" onclick="makeMove(2)"></div>
+                    <div class="cell" onclick="makeMove(3)"></div>
+                    <div class="cell" onclick="makeMove(4)"></div>
+                    <div class="cell" onclick="makeMove(5)"></div>
+                    <div class="cell" onclick="makeMove(6)"></div>
+                    <div class="cell" onclick="makeMove(7)"></div>
+                    <div class="cell" onclick="makeMove(8)"></div>
+                </div>
+
+                <div class="flex gap-4 justify-center">
+                    <button onclick="resetGame()" class="btn bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-3 px-8 rounded-xl">
+                        🔄 بازی جدید
+                    </button>
+                    <button onclick="resetScores()" class="btn bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600 text-white font-bold py-3 px-8 rounded-xl">
+                        🗑️ پاک کردن امتیازات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
-        // متغیرهای ساده جهانی
-        var bazikon = 'X';
-        var khooneHa = ['', '', '', '', '', '', '', '', ''];
-        var tamoomShod = false;
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+        let gameMode = 'bot'; // 'bot' or 'friend'
+        let difficulty = 'medium'; // 'easy', 'medium', 'hard', 'impossible'
+        let scores = { X: 0, O: 0, draw: 0 };
 
-        function bezan(element, index) {
-            // چک کردن اینکه آیا خونه خالیه و بازی تموم نشده
-            if (element.innerHTML == '' && tamoomShod == false) {
-                
-                // گذاشتن علامت
-                element.innerHTML = bazikon;
-                khooneHa[index] = bazikon;
-                
-                // تغییر رنگ بر اساس بازیکن
-                if(bazikon == 'X') {
-                    element.style.color = 'red';
-                } else {
-                    element.style.color = 'blue';
-                }
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+            [0, 4, 8], [2, 4, 6] // diagonals
+        ];
 
-                checkBarande();
-
-                // عوض کردن نوبت با یک شرط ساده
-                if (bazikon == 'X') {
-                    bazikon = 'O';
-                } else {
-                    bazikon = 'X';
-                }
-                
-                // آپدیت متن پایین صفحه
-                document.getElementById('nobat').innerHTML = bazikon;
-            }
-        }
-
-        function checkBarande() {
-            // بررسی تمام حالت‌های برد با شرط‌های طولانی (روش مبتدی)
+        function setGameMode(mode) {
+            gameMode = mode;
+            document.getElementById('botMode').classList.toggle('active', mode === 'bot');
+            document.getElementById('friendMode').classList.toggle('active', mode === 'friend');
             
-            // ردیف‌ها
-            if (check(0,1,2) || check(3,4,5) || check(6,7,8) || 
-                check(0,3,6) || check(1,4,7) || check(2,5,8) || // ستون‌ها
-                check(0,4,8) || check(2,4,6)) { // ضربدری
+            const diffSection = document.getElementById('difficultySection');
+            if (mode === 'bot') {
+                diffSection.style.display = 'block';
+                document.getElementById('playerOLabel').textContent = 'ربات';
+            } else {
+                diffSection.style.display = 'none';
+                document.getElementById('playerOLabel').textContent = 'بازیکن O';
+            }
+            
+            resetGame();
+        }
+
+        function setDifficulty(level) {
+            difficulty = level;
+            ['easy', 'medium', 'hard', 'impossible'].forEach(l => {
+                document.getElementById(l + 'Btn').classList.toggle('active', l === level);
+            });
+            resetGame();
+        }
+
+        function makeMove(index) {
+            if (board[index] !== '' || !gameActive) return;
+
+            board[index] = currentPlayer;
+            updateBoard();
+            
+            if (checkWin()) {
+                gameActive = false;
+                highlightWinner();
+                scores[currentPlayer]++;
+                updateScores();
+                document.getElementById('statusText').textContent = `🎉 ${currentPlayer === 'X' ? 'بازیکن X' : (gameMode === 'bot' ? 'ربات' : 'بازیکن O')} برنده شد!`;
+                document.getElementById('turnIndicator').innerHTML = '<span class="text-yellow-300">✨ بازی تمام شد!</span>';
+                return;
+            }
+
+            if (board.every(cell => cell !== '')) {
+                gameActive = false;
+                scores.draw++;
+                updateScores();
+                document.getElementById('statusText').textContent = '🤝 بازی مساوی شد!';
+                document.getElementById('turnIndicator').innerHTML = '<span class="text-blue-300">بازی به تساوی کشید</span>';
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            updateStatus();
+
+            if (gameMode === 'bot' && currentPlayer === 'O' && gameActive) {
+                setTimeout(botMove, 500);
+            }
+        }
+
+        function botMove() {
+            let move;
+            
+            switch(difficulty) {
+                case 'easy':
+                    move = getRandomMove();
+                    break;
+                case 'medium':
+                    move = Math.random() < 0.5 ? getBestMove() : getRandomMove();
+                    break;
+                case 'hard':
+                    move = Math.random() < 0.8 ? getBestMove() : getRandomMove();
+                    break;
+                case 'impossible':
+                    move = getBestMove();
+                    break;
+            }
+            
+            makeMove(move);
+        }
+
+        function getRandomMove() {
+            const availableMoves = board.map((cell, index) => cell === '' ? index : null).filter(val => val !== null);
+            return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+        }
+
+        function getBestMove() {
+            // Check for winning move
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = 'O';
+                    if (checkWin()) {
+                        board[i] = '';
+                        return i;
+                    }
+                    board[i] = '';
+                }
+            }
+
+            // Block player's winning move
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = 'X';
+                    if (checkWin()) {
+                        board[i] = '';
+                        return i;
+                    }
+                    board[i] = '';
+                }
+            }
+
+            // Take center if available
+            if (board[4] === '') return 4;
+
+            // Take corners
+            const corners = [0, 2, 6, 8];
+            const availableCorners = corners.filter(i => board[i] === '');
+            if (availableCorners.length > 0) {
+                return availableCorners[Math.floor(Math.random() * availableCorners.length)];
+            }
+
+            // Take any available space
+            return getRandomMove();
+        }
+
+        function checkWin() {
+            return winningConditions.some(condition => {
+                return board[condition[0]] !== '' &&
+                       board[condition[0]] === board[condition[1]] &&
+                       board[condition[0]] === board[condition[2]];
+            });
+        }
+
+        function highlightWinner() {
+            winningConditions.forEach(condition => {
+                if (board[condition[0]] !== '' &&
+                    board[condition[0]] === board[condition[1]] &&
+                    board[condition[0]] === board[condition[2]]) {
+                    condition.forEach(index => {
+                        document.querySelectorAll('.cell')[index].classList.add('winner');
+                    });
+                }
+            });
+        }
+
+        function updateBoard() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                cell.textContent = board[index];
+                cell.classList.toggle('filled', board[index] !== '');
+                cell.classList.toggle('x', board[index] === 'X');
+                cell.classList.toggle('o', board[index] === 'O');
+            });
+        }
+
+        function updateStatus() {
+            if (gameActive) {
+                const playerName = currentPlayer === 'X' ? 'بازیکن X' : (gameMode === 'bot' ? 'ربات' : 'بازیکن O');
+                document.getElementById('statusText').textContent = `نوبت ${playerName}`;
                 
-                tamoomShod = true;
-                // استفاده از alert که خیلی کلاسیک است
-                setTimeout(function(){ 
-                    alert('ایول! بازیکن ' + bazikon + ' برنده شد!'); 
-                }, 100);
-            } 
-            // چک کردن مساوی شدن
-            else if (!khooneHa.includes('')) {
-                alert('بازی مساوی شد!');
-                tamoomShod = true;
+                if (gameMode === 'bot' && currentPlayer === 'O') {
+                    document.getElementById('turnIndicator').innerHTML = '<span class="inline-block w-4 h-4 bg-blue-400 rounded-full animate-pulse mr-2"></span>ربات در حال فکر کردن...';
+                } else {
+                    const color = currentPlayer === 'X' ? 'red' : 'cyan';
+                    document.getElementById('turnIndicator').innerHTML = `<span class="inline-block w-4 h-4 bg-${color}-400 rounded-full animate-pulse mr-2"></span>نوبت شماست!`;
+                }
             }
         }
 
-        function check(a, b, c) {
-            if (khooneHa[a] != '' && khooneHa[a] == khooneHa[b] && khooneHa[b] == khooneHa[c]) {
-                return true;
-            }
-            return false;
+        function updateScores() {
+            document.getElementById('playerXScore').textContent = scores.X;
+            document.getElementById('playerOScore').textContent = scores.O;
+            document.getElementById('drawScore').textContent = scores.draw;
         }
+
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('winner', 'filled', 'x', 'o');
+            });
+            updateBoard();
+            updateStatus();
+        }
+
+        function resetScores() {
+            scores = { X: 0, O: 0, draw: 0 };
+            updateScores();
+            resetGame();
+        }
+
+        // Initialize
+        updateStatus();
+        updateScores();
     </script>
-
 </body>
 </html>
